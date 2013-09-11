@@ -1,0 +1,23 @@
+{
+    "name": "Draggable-Points",
+    "version": "1.0.0",
+    "title": "Highcharts Draggable Points",
+    "jsfiddle": "http://jsfiddle.net/highcharts/AyUbx/",
+    "author": {
+        "name": "Torstein Hønsi",
+        "url": "https://github.com/highslide-software"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/highslide-software/draggable-points/blob/master/LICENSE"
+        }
+    ],
+    "description": "This plugin allows the user to drag the points in the chart, making them able to edit data directly in the chart.",
+    "keywords": [
+     "draggable"
+    ],
+    "dependencies": {
+        "Highcharts": ">=3.0.0"
+    }
+}
