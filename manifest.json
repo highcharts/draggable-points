@@ -1,8 +1,10 @@
 {
     "name": "Draggable-Points",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "Highcharts Draggable Points",
-    "jsfiddle": "http://jsfiddle.net/highcharts/AyUbx/",
+    "demo": [
+        "http://jsfiddle.net/highcharts/AyUbx/"
+    ],
     "author": {
         "name": "Torstein Hønsi",
         "url": "https://github.com/highslide-software"
