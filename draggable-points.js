@@ -87,7 +87,9 @@
                 function () {
                     proceed = true;
                     dragPoint.update([newX, newY], false);
-                    chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
+                    if (chart.tooltip) {
+                        chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
+                    }
                     if (series.stackKey) {
                         chart.redraw();
                     } else {
