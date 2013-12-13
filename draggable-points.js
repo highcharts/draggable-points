@@ -4,6 +4,8 @@
  * Author: Torstein Hønsi
  * License: MIT License
  *
+ * Modified 13/12/13 to only support inverted columnrange charts
+ * Author: Richard Wise (MAT)
  */
 (function (Highcharts) {
     var addEvent = Highcharts.addEvent,
@@ -12,17 +14,21 @@
     /**
      * Filter by dragMin and dragMax
      */
-    function filterRange(newY, series, XOrY) {
+    function filterRange(newValue, size, series, XOrY) {
         var options = series.options,
             dragMin = options['dragMin' + XOrY],
-            dragMax = options['dragMax' + XOrY];
+            dragMax = options['dragMax' + XOrY],
+            dragPrecision = options['dragPrecision' + XOrY];
 
-        if (newY < dragMin) {
-            newY = dragMin;
-        } else if (newY > dragMax) {
-            newY = dragMax;
+        if (newValue < dragMin) {
+            newValue = dragMin;
+        } else if (newValue + size > dragMax) {
+            newValue = dragMax - size;
         }
-        return newY;
+        if (dragPrecision) {
+            newValue = Math.round(newValue / dragPrecision) * dragPrecision;
+        }
+        return newValue;
     }
 
     Highcharts.Chart.prototype.callbacks.push(function (chart) {
@@ -39,21 +45,22 @@
         addEvent(container, 'mousedown', function (e) {
             var hoverPoint = chart.hoverPoint,
                 options;
-
             if (hoverPoint) {
                 options = hoverPoint.series.options;
                 if (options.draggableX) {
                     dragPoint = hoverPoint;
-
-                    dragX = e.pageX;
+                    
+                    dragX = e.pageY;
                     dragPlotX = dragPoint.plotX;
                 }
 
                 if (options.draggableY) {
                     dragPoint = hoverPoint;
 
-                    dragY = e.pageY;
-                    dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
+                    dragY = e.pageX;
+                    
+                    dragPlotY = dragPoint.plotY/* + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight))*/;
+
                 }
 
                 // Disable zooming when dragging
@@ -65,17 +72,18 @@
 
         addEvent(container, 'mousemove', function (e) {
             if (dragPoint) {
-                var deltaY = dragY - e.pageY,
-                    deltaX = dragX - e.pageX,
-                    newPlotX = dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
-                    newPlotY = chart.plotHeight - dragPlotY + deltaY,
+                var deltaY = e.pageX - dragY,
+                    deltaX = e.pageY - dragX,
+                    newPlotX = dragPlotX - deltaX/* dragPoint.series.xAxis.minPixelPaddin*/,
+                    newPlotY = chart.plotWidth - dragPlotY + deltaY,
                     newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
                     newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true),
                     series = dragPoint.series,
                     proceed;
 
-                newX = filterRange(newX, series, 'X');
-                newY = filterRange(newY, series, 'Y');
+                var diff = dragPoint.high - dragPoint.low;
+                newX = filterRange(newX, 0, series, 'X');
+                newY = filterRange(newY, diff, series, 'Y');
 
                 // Fire the 'drag' event with a default action to move the point.
                 dragPoint.firePointEvent(
@@ -86,7 +94,7 @@
 
                 function () {
                     proceed = true;
-                    dragPoint.update([newX, newY], false);
+                    dragPoint.update([newX, newY, newY + diff], false);
                     if (chart.tooltip) {
                         chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
                     }
@@ -107,17 +115,19 @@
         function drop(e) {
             if (dragPoint) {
                 if (e) {
-                    var deltaX = dragX - e.pageX,
-                        deltaY = dragY - e.pageY,
-                        newPlotX = dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
-                        newPlotY = chart.plotHeight - dragPlotY + deltaY,
+                    var deltaX = e.pageY - dragX,
+                        deltaY = e.pageX - dragY,
+                        newPlotX = dragPlotX - deltaX/* - dragPoint.series.xAxis.minPixelPadding*/,
+                        newPlotY = chart.plotWidth - dragPlotY + deltaY,
                         series = dragPoint.series,
                         newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
                         newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true);
     
-                    newX = filterRange(newX, series, 'X');
-                    newY = filterRange(newY, series, 'Y');
-                    dragPoint.update([newX, newY]);
+                    var diff = dragPoint.high - dragPoint.low;
+
+                    newX = filterRange(newX, 0, series, 'X');
+                    newY = filterRange(newY, diff, series, 'Y');
+                    dragPoint.update([newX, newY, newY + diff]);
                 }                
                 dragPoint.firePointEvent('drop');
             }
@@ -143,9 +153,9 @@
                 'dashstyle': 'shortdot'
             } : {
                 'stroke-width': series.options.borderWidth,
-                'dashstyle': series.options.dashStyle || 'solid'
+                'dashstyle': series.options.dashStyle || 'solid'
             });
         });
     };
  
-})(Highcharts);
+})(Highcharts); 
