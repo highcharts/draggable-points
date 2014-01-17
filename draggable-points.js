@@ -33,7 +33,7 @@
             dragY,
             dragPlotX,
             dragPlotY,
-			draggable = chart.options.chart.draggable;
+            draggable = chart.options.chart.draggable;
         
         // set chart.draggable = true to enable dragging
         if (!draggable) {
@@ -142,11 +142,11 @@
 
     colProto.drawTracker = function () {
         var series = this,
-			userOptions = series.userOptions;
-		if (!userOptions.draggableY && !userOptions.draggableX) {
-			return false; // don't change non-draggable charts
-		}
-        baseDrawTracker.apply(series);
+            userOptions = series.userOptions;
+	baseDrawTracker.apply(series);
+	if (!userOptions.draggableY && !userOptions.draggableX) {
+		return false; // don't change non-draggable charts
+	}
         each(series.points, function (point) {
             point.graphic.attr(point.shapeArgs.height < 3 ? {
                 'stroke': 'black',
