@@ -32,8 +32,15 @@
             dragX,
             dragY,
             dragPlotX,
-            dragPlotY;
-
+            dragPlotY,
+            draggable = chart.options.chart.draggable;
+        
+        // set chart.draggable = true to enable dragging
+        if (!draggable) {
+            return false;
+        }
+        
+        // this seems to cause reduced padding on other charts
         chart.redraw(); // kill animation (why was this again?)
 
         addEvent(container, 'mousedown', function (e) {
@@ -134,8 +141,12 @@
         baseDrawTracker = colProto.drawTracker;
 
     colProto.drawTracker = function () {
-        var series = this;
-        baseDrawTracker.apply(series);
+        var series = this,
+            userOptions = series.userOptions;
+	baseDrawTracker.apply(series);
+	if (!userOptions.draggableY && !userOptions.draggableX) {
+		return false; // don't change non-draggable charts
+	}
         each(series.points, function (point) {
             point.graphic.attr(point.shapeArgs.height < 3 ? {
                 'stroke': 'black',
