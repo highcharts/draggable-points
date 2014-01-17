@@ -1,6 +1,5 @@
 /**
- * Experimental Draggable points plugin
- * Revised 2013-06-13
+ * Draggable points plugin
  * Author: Torstein Hønsi
  * License: MIT License
  *
@@ -130,22 +129,22 @@
     /**
      * Extend the column chart tracker by visualizing the tracker object for small points
      */
-    var colProto = Highcharts.seriesTypes.column.prototype,
-        baseDrawTracker = colProto.drawTracker;
-
-    colProto.drawTracker = function () {
-        var series = this;
-        baseDrawTracker.apply(series);
-        each(series.points, function (point) {
-            point.graphic.attr(point.shapeArgs.height < 3 ? {
-                'stroke': 'black',
-                'stroke-width': 2,
-                'dashstyle': 'shortdot'
-            } : {
-                'stroke-width': series.options.borderWidth,
-                'dashstyle': series.options.dashStyle || 'solid'
+    Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
+        var series = this,
+            options = series.options;
+        proceed.apply(series);
+        if (options.draggableX || options.draggableY) {
+            each(series.points, function (point) {
+                point.graphic.attr(point.shapeArgs.height < 3 ? {
+                    'stroke': 'black',
+                    'stroke-width': 2,
+                    'dashstyle': 'shortdot'
+                } : {
+                    'stroke-width': series.options.borderWidth,
+                    'dashstyle': series.options.dashStyle || 'solid'
+                });
             });
-        });
-    };
+        }
+    });
  
 })(Highcharts);
