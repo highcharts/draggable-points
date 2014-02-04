@@ -1,20 +1,22 @@
 /**
  * Draggable points plugin
- * Author: Torstein Hønsi
+ * Author: Torstein Honsi
  * License: MIT License
  *
  */
 (function (Highcharts) {
+
     var addEvent = Highcharts.addEvent,
-        each = Highcharts.each;
+        each = Highcharts.each,
+        pick = Highcharts.pick;
 
     /**
      * Filter by dragMin and dragMax
      */
     function filterRange(newY, series, XOrY) {
         var options = series.options,
-            dragMin = options['dragMin' + XOrY],
-            dragMax = options['dragMax' + XOrY];
+            dragMin = pick(options['dragMin' + XOrY], undefined),
+            dragMax = pick(options['dragMax' + XOrY], undefined);
 
         if (newY < dragMin) {
             newY = dragMin;
