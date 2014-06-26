@@ -65,24 +65,23 @@
                 dragPlotX,
                 dragPlotY;
 
-            chart.redraw(); // kill animation (why was this again?)
-
-            addEvent(container, 'mousedown touchstart', function (e) {
+            function mouseDown(e) {
                 var hoverPoint = chart.hoverPoint,
-                    options;
+                    options,
+                    originalEvent = e.originalEvent || e;
 
                 if (hoverPoint) {
                     options = hoverPoint.series.options;
                     if (options.draggableX) {
                         dragPoint = hoverPoint;
-                        dragX = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageX : e.pageX;
+                        dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
                         dragPlotX = dragPoint.plotX;
                     }
 
                     if (options.draggableY) {
                         dragPoint = hoverPoint;
 
-                        dragY = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageY : e.pageY;
+                        dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
                         dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
                     }
 
@@ -91,15 +90,16 @@
                         chart.mouseIsDown = false;
                     }
                 }
-            });
+            }
 
-            addEvent(container, 'mousemove touchmove', function (e) {
+            function mouseMove(e) {
                 
                 e.preventDefault();
 
                 if (dragPoint) {
-                    var pageX = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageX : e.pageX,
-                        pageY = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageY : e.pageY,
+                    var originalEvent = e.originalEvent || e,
+                        pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
+                        pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
                         deltaY = dragY - pageY,
                         deltaX = dragX - pageX,
                         draggableX = dragPoint.series.options.draggableX,
@@ -146,13 +146,14 @@
                         drop();
                     }
                 }
-            });
+            }
 
             function drop(e) {
                 if (dragPoint) {
                     if (e) {
-                        var pageX = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageX : e.pageX,
-                            pageY = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageY : e.pageY,
+                        var originalEvent = e.originalEvent || e,
+                            pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
+                            pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
                             draggableX = dragPoint.series.options.draggableX,
                             draggableY = dragPoint.series.options.draggableY,
                             deltaX = dragX - pageX,
@@ -176,7 +177,18 @@
                 }
                 dragPoint = dragX = dragY = undefined;
             }
-            addEvent(document, 'mouseup touchend', drop);
+
+
+            // Kill animation (why was this again?)
+            chart.redraw(); 
+
+            // Add'em
+            addEvent(container, 'mousemove', mouseMove);
+            addEvent(container, 'touchmove', mouseMove);
+            addEvent(container, 'mousedown', mouseDown);
+            addEvent(container, 'touchstart', mouseDown);
+            addEvent(document, 'mouseup', drop);
+            addEvent(document, 'touchend', drop);
             addEvent(container, 'mouseleave', drop);
         });
 
