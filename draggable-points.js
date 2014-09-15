@@ -119,27 +119,31 @@
                     // Fire the 'drag' event with a default action to move the point.
                     dragPoint.firePointEvent(
                         'drag', {
-                        newX: draggableX ? newX : dragPoint.x,
-                        newY: draggableY ? newY : dragPoint.y
-                    },
+                            newX: draggableX ? newX : dragPoint.x,
+                            newY: draggableY ? newY : dragPoint.y
+                        }, function () {
+                            proceed = true;
 
-                    function () {
-                        proceed = true;
+                            dragPoint.update({
+                                x: draggableX ? newX : dragPoint.x,
+                                y: draggableY ? newY : dragPoint.y
+                            }, false);
 
-                        dragPoint.update({
-                            x: draggableX ? newX : dragPoint.x,
-                            y: draggableY ? newY : dragPoint.y
-                        }, false);
+                            // Hide halo while dragging (#14)
+                            if (series.halo) {
+                                series.halo = series.halo.destroy();
+                            }
 
-                        if (chart.tooltip) {
-                            chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
+                            if (chart.tooltip) {
+                                chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
+                            }
+                            if (series.stackKey) {
+                                chart.redraw();
+                            } else {
+                                series.redraw();
+                            }
                         }
-                        if (series.stackKey) {
-                            chart.redraw();
-                        } else {
-                            series.redraw();
-                        }
-                    });
+                    );
 
                     // The default handler has not run because of prevented default
                     if (!proceed) {
