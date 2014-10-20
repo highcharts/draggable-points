@@ -26,36 +26,6 @@
             return newY;
         }
 
-        Highcharts.dragdrop = {
-            mouseDown: function (e, chart) {
-                
-                var hoverPoint = chart.hoverPoint,
-                    options;
-
-                if (hoverPoint) {
-                    options = hoverPoint.series.options;
-                    if (options.draggableX) {
-                        dragPoint = hoverPoint;
-
-                        dragX = e.changedTouches ? e.changedTouches[0].pageX : e.pageX;
-                        dragPlotX = dragPoint.plotX;
-                    }
-
-                    if (options.draggableY) {
-                        dragPoint = hoverPoint;
-
-                        dragY = e.changedTouches ? e.changedTouches[0].pageY : e.pageY;
-                        dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
-                    }
-
-                    // Disable zooming when dragging
-                    if (dragPoint) {
-                        chart.mouseIsDown = false;
-                    }
-                }
-            }
-        };
-
         Highcharts.Chart.prototype.callbacks.push(function (chart) {
 
             var container = chart.container,
