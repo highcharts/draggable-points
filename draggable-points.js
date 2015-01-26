@@ -36,9 +36,17 @@
                 dragPlotY;
 
             function mouseDown(e) {
-                var hoverPoint = chart.hoverPoint,
-                    options,
-                    originalEvent = e.originalEvent || e;
+                var options,
+                    originalEvent = e.originalEvent || e,
+                    hoverPoint;
+
+                if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
+                    hoverPoint = originalEvent.target.point;
+                }
+                
+                if (!hoverPoint && chart.hoverPoint && !chart.hoverPoint.series.dragRequiresHandle) {
+                    hoverPoint = chart.hoverPoint;
+                }
 
                 if (hoverPoint) {
                     options = hoverPoint.series.options;
@@ -169,6 +177,7 @@
         /**
          * Extend the column chart tracker by visualizing the tracker object for small points
          */
+        Highcharts.seriesTypes.column.prototype.dragRequiresHandle = true;
         Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
             var series = this,
                 options = series.options;
@@ -178,15 +187,29 @@
 
                 each(series.points, function (point) {
 
+                    var shapeArgs = point.shapeArgs,
+                        path = [
+                            'M', shapeArgs.x, shapeArgs.y, 
+                            'L', shapeArgs.x + shapeArgs.width, shapeArgs.y,
+                            'L', shapeArgs.x + shapeArgs.width, shapeArgs.y + 5,
+                            'L', shapeArgs.x, shapeArgs.y + 5
+                        ];
 
-                    point.graphic.attr(point.shapeArgs.height < 3 ? {
-                        'stroke': 'black',
-                            'stroke-width': 2,
-                            'dashstyle': 'shortdot'
-                    } : {
-                        'stroke-width': series.options.borderWidth,
-                            'dashstyle': series.options.dashStyle || 'solid'
-                    });
+                    if (!point.handle) {
+                        point.handle = series.chart.renderer.path(path)
+                            .attr({
+                                fill: 'rgba(0, 0, 0, 0.5)',
+                                'class': 'highcharts-handle'
+                            })
+                            .css({
+                                cursor: 'ns-resize'
+                            })
+                            .add(series.group);
+
+                        point.handle.element.point = point;
+                    } else {
+                        point.handle.attr({ d: path });
+                    }
                 });
             }
         });
