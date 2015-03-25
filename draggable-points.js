@@ -33,8 +33,21 @@
                 dragX,
                 dragY,
                 dragPlotX,
-                dragPlotY;
-
+                dragPlotY,
+                //Change this flag to enable snap fit - neary by grid lines
+                snapToFit = false;
+            /*
+             * Get closest point of given tickPositions
+             */
+            function getSnapPoint(points, goal) {
+                var closest = null;
+                for (i = 0; i < points.length; i++) {
+                    if (closest == null || Math.abs(points[i] - goal) < Math.abs(closest - goal)) {
+                        closest = points[i];
+                    }
+                }
+                return closest;
+            }            
             function mouseDown(e) {
                 var hoverPoint = chart.hoverPoint,
                     options,
@@ -85,7 +98,10 @@
                     
                     newX = filterRange(newX, series, 'X');
                     newY = filterRange(newY, series, 'Y');
-
+                    
+                    if(snapToFit)
+                    newY = getSnapPoint(chart.yAxis[0].tickPositions, newY);
+                    
                     // Fire the 'drag' event with a default action to move the point.
                     dragPoint.firePointEvent(
                         'drag', {
@@ -141,7 +157,10 @@
 
                         newX = filterRange(newX, series, 'X');
                         newY = filterRange(newY, series, 'Y');
-
+                        
+                        if(snapToFit)
+                        newY = getSnapPoint(chart.yAxis[0].tickPositions, newY);
+                        
                         dragPoint.update({
                             x: draggableX ? newX : dragPoint.x,
                             y: draggableY ? newY : dragPoint.y
