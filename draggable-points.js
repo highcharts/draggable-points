@@ -148,7 +148,10 @@
                         });
                     }
                     dragPoint.firePointEvent('drop');
-                }
+
+                    chart.hoverPoint = dragPoint;
+                }                
+
                 dragPoint = dragX = dragY = undefined;
             }
 
