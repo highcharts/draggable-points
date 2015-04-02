@@ -74,6 +74,7 @@
                         deltaX = dragX - pageX,
                         draggableX = dragPoint.series.options.draggableX,
                         draggableY = dragPoint.series.options.draggableY,
+                        decimals = pick(dragPoint.series.options.decimals, undefined),
                         series = dragPoint.series,
                         isScatter = series.type === 'bubble' || series.type === 'scatter',
                         newPlotX = isScatter ? dragPlotX - deltaX : dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
@@ -85,6 +86,11 @@
                     
                     newX = filterRange(newX, series, 'X');
                     newY = filterRange(newY, series, 'Y');
+
+                    if (decimals !== undefined) {
+                        newX = Number(Highcharts.numberFormat(newX, decimals));
+                        newY = Number(Highcharts.numberFormat(newY, decimals));
+                    }
 
                     // Fire the 'drag' event with a default action to move the point.
                     dragPoint.firePointEvent(
@@ -130,6 +136,7 @@
                             pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
                             draggableX = dragPoint.series.options.draggableX,
                             draggableY = dragPoint.series.options.draggableY,
+                            decimals = pick(dragPoint.series.options.decimals, undefined),
                             deltaX = dragX - pageX,
                             deltaY = dragY - pageY,
                             series = dragPoint.series,
@@ -142,6 +149,11 @@
                         newX = filterRange(newX, series, 'X');
                         newY = filterRange(newY, series, 'Y');
 
+                        if (decimals !== undefined) {
+                            newX = Number(Highcharts.numberFormat(newX, decimals));
+                            newY = Number(Highcharts.numberFormat(newY, decimals));
+                        }
+
                         dragPoint.update({
                             x: draggableX ? newX : dragPoint.x,
                             y: draggableY ? newY : dragPoint.y
@@ -151,7 +163,6 @@
                 }
                 dragPoint = dragX = dragY = undefined;
             }
-
 
             // Kill animation (why was this again?)
             chart.redraw(); 
