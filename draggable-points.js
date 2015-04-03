@@ -197,7 +197,7 @@
                     input.className = 'draggable-input-value';
 
                     function setPosition () {
-                        input.style.width = point.pointWidth + 'px';
+                        input.style.width = (chart.chartWidth / point.series.points.length - 10) + 'px';
                         input.style.left = (chart.plotLeft + point.plotX - input.offsetWidth/2) + 'px';
                         //input.style.top = (point.plotY) + 'px';
                         input.style.top = (chart.plotTop - input.offsetHeight/2) + 'px';
