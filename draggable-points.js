@@ -170,9 +170,6 @@
                 dragPoint = dragX = dragY = undefined;
             }
 
-            // Kill animation (why was this again?)
-            chart.redraw(); 
-
             function addInputsToCharts() {
                 for (var s = 0, slen = chart.series.length; s < slen; s++) {
                     var series = chart.series[s],
@@ -198,10 +195,15 @@
                     input.style.visibility = 'hidden';
                     input.style.textAlign = 'center';
                     input.className = 'draggable-input-value';
-                    input.style.width = point.pointWidth + 'px';
-                    input.style.left = (chart.plotLeft + point.plotX - input.offsetWidth/2) + 'px';
-                    //input.style.top = (point.plotY) + 'px';
-                    input.style.top = (chart.plotTop - input.offsetHeight/2) + 'px';
+
+                    function setPosition () {
+                        input.style.width = point.pointWidth + 'px';
+                        input.style.left = (chart.plotLeft + point.plotX - input.offsetWidth/2) + 'px';
+                        //input.style.top = (point.plotY) + 'px';
+                        input.style.top = (chart.plotTop - input.offsetHeight/2) + 'px';
+                    }
+
+                    addEvent(chart, 'redraw', setPosition);
 
                     addEvent(input, 'mouseenter', function (event) {
                         var width = Number(this.style.width.slice(0, this.style.width.length -2)),
@@ -258,6 +260,9 @@
             }
 
             addInputsToCharts();
+
+            // Kill animation (why was this again?)
+            chart.redraw(); 
 
             // Add'em
             addEvent(container, 'mouseenter', inputDisplay('visible'));
