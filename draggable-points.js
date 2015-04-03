@@ -176,6 +176,11 @@
                         options = series.options,
                         points = series.points;
                     if ( options.dragInputs ) {
+                        /* container needs to be position: relative */
+                        if (['relative', 'absolute'].indexOf(container.parentNode.style.position) === -1) {
+                            container.parentNode.style.position = 'relative';
+                        }
+
                         for (var p = 0, plen = points.length; p < plen; p++) {
                             var point = points[p];
                             addInput(point);                        
@@ -201,7 +206,6 @@
                         input.style.left = (chart.plotLeft + point.plotX - input.offsetWidth/2) + 'px';
                         //input.style.top = (point.plotY) + 'px';
                         input.style.top = (chart.plotTop - input.offsetHeight/2) + 'px';
-                        debugger;
                     });
 
                     addEvent(input, 'mouseenter', function (event) {
