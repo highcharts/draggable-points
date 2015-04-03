@@ -192,18 +192,17 @@
 
                     input.value = point.y;
                     input.style.position = 'absolute';
-                    input.style.visibility = 'hidden';
+                    input.style.visibility = 'visible';
                     input.style.textAlign = 'center';
                     input.className = 'draggable-input-value';
 
-                    function setPosition () {
-                        input.style.width = (chart.chartWidth / point.series.points.length - 10) + 'px';
+                    addEvent(chart, 'redraw', function setPosition () {
+                        input.style.width = ((chart.plotWidth - chart.marginRight - chart.axisOffset[1] - chart.axisOffset[3]) / point.series.points.length) + 'px';
                         input.style.left = (chart.plotLeft + point.plotX - input.offsetWidth/2) + 'px';
                         //input.style.top = (point.plotY) + 'px';
                         input.style.top = (chart.plotTop - input.offsetHeight/2) + 'px';
-                    }
-
-                    addEvent(chart, 'redraw', setPosition);
+                        debugger;
+                    });
 
                     addEvent(input, 'mouseenter', function (event) {
                         var width = Number(this.style.width.slice(0, this.style.width.length -2)),
