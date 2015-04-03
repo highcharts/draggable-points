@@ -201,7 +201,6 @@
                         input.style.left = (chart.plotLeft + point.plotX - input.offsetWidth/2) + 'px';
                         //input.style.top = (point.plotY) + 'px';
                         input.style.top = (chart.plotTop - input.offsetHeight/2) + 'px';
-                        debugger;
                     });
 
                     addEvent(input, 'mouseenter', function (event) {
