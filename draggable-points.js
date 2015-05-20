@@ -1,191 +1,192 @@
 /**
- * Draggable points plugin
+ * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- *
  */
- (function (Highcharts) {
+/*global document, Highcharts */
+(function (Highcharts) {
 
-        var addEvent = Highcharts.addEvent,
-            each = Highcharts.each,
-            pick = Highcharts.pick;
+    'use strict';
 
-        /**
-         * Filter by dragMin and dragMax
-         */
-        function filterRange(newY, series, XOrY) {
-            var options = series.options,
-                dragMin = pick(options['dragMin' + XOrY], undefined),
-                dragMax = pick(options['dragMax' + XOrY], undefined);
+    var addEvent = Highcharts.addEvent,
+        each = Highcharts.each,
+        pick = Highcharts.pick;
 
-            if (newY < dragMin) {
-                newY = dragMin;
-            } else if (newY > dragMax) {
-                newY = dragMax;
-            }
-            return newY;
+    /**
+     * Filter by dragMin and dragMax
+     */
+    function filterRange(newY, series, XOrY) {
+        var options = series.options,
+            dragMin = pick(options['dragMin' + XOrY], undefined),
+            dragMax = pick(options['dragMax' + XOrY], undefined);
+
+        if (newY < dragMin) {
+            newY = dragMin;
+        } else if (newY > dragMax) {
+            newY = dragMax;
         }
+        return newY;
+    }
 
-        Highcharts.Chart.prototype.callbacks.push(function (chart) {
+    Highcharts.Chart.prototype.callbacks.push(function (chart) {
 
-            var container = chart.container,
-                dragPoint,
-                dragX,
-                dragY,
-                dragPlotX,
-                dragPlotY;
+        var container = chart.container,
+            dragPoint,
+            dragX,
+            dragY,
+            dragPlotX,
+            dragPlotY;
 
-            function mouseDown(e) {
-                var hoverPoint = chart.hoverPoint,
-                    options,
-                    originalEvent = e.originalEvent || e;
-
-                if (hoverPoint) {
-                    options = hoverPoint.series.options;
-                    if (options.draggableX) {
-                        dragPoint = hoverPoint;
-                        dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
-                        dragPlotX = dragPoint.plotX;
-                    }
-
-                    if (options.draggableY) {
-                        dragPoint = hoverPoint;
-
-                        dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
-                        dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
-                    }
-
-                    // Disable zooming when dragging
-                    if (dragPoint) {
-                        chart.mouseIsDown = false;
-                    }
-                }
-            }
-
-            function mouseMove(e) {
-                
-                e.preventDefault();
-
-                if (dragPoint) {
+        function drop(e) {
+            if (dragPoint) {
+                if (e) {
                     var originalEvent = e.originalEvent || e,
                         pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
                         pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
-                        deltaY = dragY - pageY,
-                        deltaX = dragX - pageX,
                         draggableX = dragPoint.series.options.draggableX,
                         draggableY = dragPoint.series.options.draggableY,
+                        deltaX = dragX - pageX,
+                        deltaY = dragY - pageY,
                         series = dragPoint.series,
                         isScatter = series.type === 'bubble' || series.type === 'scatter',
                         newPlotX = isScatter ? dragPlotX - deltaX : dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
                         newPlotY = chart.plotHeight - dragPlotY + deltaY,
                         newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
-                        newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true),
-                        proceed;
+                        newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true);
 
-                    
                     newX = filterRange(newX, series, 'X');
                     newY = filterRange(newY, series, 'Y');
 
-                    // Fire the 'drag' event with a default action to move the point.
-                    dragPoint.firePointEvent(
-                        'drag', {
-                            newX: draggableX ? newX : dragPoint.x,
-                            newY: draggableY ? newY : dragPoint.y
-                        }, function () {
-                            proceed = true;
+                    dragPoint.update({
+                        x: draggableX ? newX : dragPoint.x,
+                        y: draggableY ? newY : dragPoint.y
+                    });
+                }
+                dragPoint.firePointEvent('drop');
+            }
+            dragPoint = dragX = dragY = undefined;
+        }
 
-                            dragPoint.update({
-                                x: draggableX ? newX : dragPoint.x,
-                                y: draggableY ? newY : dragPoint.y
-                            }, false);
+        function mouseDown(e) {
+            var hoverPoint = chart.hoverPoint,
+                options,
+                originalEvent = e.originalEvent || e;
 
-                            // Hide halo while dragging (#14)
-                            if (series.halo) {
-                                series.halo = series.halo.destroy();
-                            }
+            if (hoverPoint) {
+                options = hoverPoint.series.options;
+                if (options.draggableX) {
+                    dragPoint = hoverPoint;
+                    dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
+                    dragPlotX = dragPoint.plotX;
+                }
 
-                            if (chart.tooltip) {
-                                chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
-                            }
-                            if (series.stackKey) {
-                                chart.redraw(false);
-                            } else {
-                                series.redraw(false);
-                            }
-                        }
-                    );
+                if (options.draggableY) {
+                    dragPoint = hoverPoint;
 
-                    // The default handler has not run because of prevented default
-                    if (!proceed) {
-                        drop();
-                    }
+                    dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
+                    dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
+                }
+
+                // Disable zooming when dragging
+                if (dragPoint) {
+                    chart.mouseIsDown = false;
                 }
             }
+        }
 
-            function drop(e) {
-                if (dragPoint) {
-                    if (e) {
-                        var originalEvent = e.originalEvent || e,
-                            pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
-                            pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
-                            draggableX = dragPoint.series.options.draggableX,
-                            draggableY = dragPoint.series.options.draggableY,
-                            deltaX = dragX - pageX,
-                            deltaY = dragY - pageY,
-                            series = dragPoint.series,
-                            isScatter = series.type === 'bubble' || series.type === 'scatter',
-                            newPlotX = isScatter ? dragPlotX - deltaX : dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
-                            newPlotY = chart.plotHeight - dragPlotY + deltaY,
-                            newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
-                            newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true);
+        function mouseMove(e) {
 
-                        newX = filterRange(newX, series, 'X');
-                        newY = filterRange(newY, series, 'Y');
+            e.preventDefault();
+
+            if (dragPoint) {
+                var originalEvent = e.originalEvent || e,
+                    pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
+                    pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
+                    deltaY = dragY - pageY,
+                    deltaX = dragX - pageX,
+                    draggableX = dragPoint.series.options.draggableX,
+                    draggableY = dragPoint.series.options.draggableY,
+                    series = dragPoint.series,
+                    isScatter = series.type === 'bubble' || series.type === 'scatter',
+                    newPlotX = isScatter ? dragPlotX - deltaX : dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
+                    newPlotY = chart.plotHeight - dragPlotY + deltaY,
+                    newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
+                    newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true),
+                    proceed;
+
+                newX = filterRange(newX, series, 'X');
+                newY = filterRange(newY, series, 'Y');
+
+                // Fire the 'drag' event with a default action to move the point.
+                dragPoint.firePointEvent(
+                    'drag',
+                    {
+                        newX: draggableX ? newX : dragPoint.x,
+                        newY: draggableY ? newY : dragPoint.y
+                    },
+                    function () {
+                        proceed = true;
 
                         dragPoint.update({
                             x: draggableX ? newX : dragPoint.x,
                             y: draggableY ? newY : dragPoint.y
-                        });
+                        }, false);
+
+                        // Hide halo while dragging (#14)
+                        if (series.halo) {
+                            series.halo = series.halo.destroy();
+                        }
+
+                        if (chart.tooltip) {
+                            chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
+                        }
+                        if (series.stackKey) {
+                            chart.redraw(false);
+                        } else {
+                            series.redraw(false);
+                        }
                     }
-                    dragPoint.firePointEvent('drop');
+                );
+
+                // The default handler has not run because of prevented default
+                if (!proceed) {
+                    drop();
                 }
-                dragPoint = dragX = dragY = undefined;
             }
+        }
 
+        // Add'em
+        addEvent(container, 'mousemove', mouseMove);
+        addEvent(container, 'touchmove', mouseMove);
+        addEvent(container, 'mousedown', mouseDown);
+        addEvent(container, 'touchstart', mouseDown);
+        addEvent(document, 'mouseup', drop);
+        addEvent(document, 'touchend', drop);
+        addEvent(container, 'mouseleave', drop);
+    });
 
-            // Add'em
-            addEvent(container, 'mousemove', mouseMove);
-            addEvent(container, 'touchmove', mouseMove);
-            addEvent(container, 'mousedown', mouseDown);
-            addEvent(container, 'touchstart', mouseDown);
-            addEvent(document, 'mouseup', drop);
-            addEvent(document, 'touchend', drop);
-            addEvent(container, 'mouseleave', drop);
-        });
+    /**
+     * Extend the column chart tracker by visualizing the tracker object for small points
+     */
+    Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
+        var chart = this.chart,
+            options = this.options,
+            is3d = chart.is3d && chart.is3d();
 
-        /**
-         * Extend the column chart tracker by visualizing the tracker object for small points
-         */
-        Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
-            var chart = this.chart,
-                options = this.options,
-                is3d = chart.is3d && chart.is3d();
+        proceed.apply(this);
 
-            proceed.apply(this);
-
-            if (!is3d && (options.draggableX || options.draggableY)) {
-                each(this.points, function (point) {
-                
-                    point.graphic.attr(point.shapeArgs.height < 3 ? {
-                        'stroke': 'black',
-                        'stroke-width': 2,
-                        'dashstyle': 'shortdot'
-                    } : {
-                        'stroke-width': options.borderWidth,
-                        'dashstyle': options.dashStyle || 'solid'
-                    });
+        if (!is3d && (options.draggableX || options.draggableY)) {
+            each(this.points, function (point) {
+                point.graphic.attr(point.shapeArgs.height < 3 ? {
+                    'stroke': 'black',
+                    'stroke-width': 2,
+                    'dashstyle': 'shortdot'
+                } : {
+                    'stroke-width': options.borderWidth,
+                    'dashstyle': options.dashStyle || 'solid'
                 });
-            }
-        });
+            });
+        }
+    });
 
-    })(Highcharts);
+}(Highcharts));
