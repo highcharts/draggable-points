@@ -108,9 +108,9 @@
                                 chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
                             }
                             if (series.stackKey) {
-                                chart.redraw();
+                                chart.redraw(false);
                             } else {
-                                series.redraw();
+                                series.redraw(false);
                             }
                         }
                     );
@@ -153,9 +153,6 @@
             }
 
 
-            // Kill animation (why was this again?)
-            chart.redraw(); 
-
             // Add'em
             addEvent(container, 'mousemove', mouseMove);
             addEvent(container, 'touchmove', mouseMove);
@@ -170,22 +167,22 @@
          * Extend the column chart tracker by visualizing the tracker object for small points
          */
         Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
-            var series = this,
-                options = series.options;
-            proceed.apply(series);
+            var chart = this.chart,
+                options = this.options,
+                is3d = chart.is3d && chart.is3d();
 
-            if (options.draggableX || options.draggableY) {
+            proceed.apply(this);
 
-                each(series.points, function (point) {
-
-
+            if (!is3d && (options.draggableX || options.draggableY)) {
+                each(this.points, function (point) {
+                
                     point.graphic.attr(point.shapeArgs.height < 3 ? {
                         'stroke': 'black',
-                            'stroke-width': 2,
-                            'dashstyle': 'shortdot'
+                        'stroke-width': 2,
+                        'dashstyle': 'shortdot'
                     } : {
-                        'stroke-width': series.options.borderWidth,
-                            'dashstyle': series.options.dashStyle || 'solid'
+                        'stroke-width': options.borderWidth,
+                        'dashstyle': options.dashStyle || 'solid'
                     });
                 });
             }
