@@ -38,13 +38,15 @@
             function mouseDown(e) {
                 var options,
                     originalEvent = e.originalEvent || e,
-                    hoverPoint;
+                    hoverPoint,
+                    series;
 
                 if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
                     hoverPoint = originalEvent.target.point;
                 }
                 
-                if (!hoverPoint && chart.hoverPoint && !chart.hoverPoint.series.dragRequiresHandle) {
+                series = chart.hoverPoint && chart.hoverPoint.series;
+                if (!hoverPoint && chart.hoverPoint && (!series.useDragHandle || !series.useDragHandle())) {
                     hoverPoint = chart.hoverPoint;
                 }
 
@@ -161,7 +163,7 @@
             }
 
 
-            // Kill animation (why was this again?)
+            // Kill animation on first drag when chart.animation is set to false.
             chart.redraw(); 
 
             // Add'em
@@ -177,29 +179,51 @@
         /**
          * Extend the column chart tracker by visualizing the tracker object for small points
          */
-        Highcharts.seriesTypes.column.prototype.dragRequiresHandle = true;
+        Highcharts.seriesTypes.column.prototype.useDragHandle = function () {
+            var is3d = this.chart.is3d && this.chart.is3d();
+            return !is3d;
+        };
+
+        Highcharts.seriesTypes.column.prototype.dragHandlePath = function (shapeArgs, strokeW) {
+            var x1 = shapeArgs.x,
+                y = shapeArgs.y,
+                x2 = shapeArgs.x + shapeArgs.width
+
+            return [
+                'M', x1, y + 6 * strokeW, 
+                'L', x1, y, 
+                'L', x2, y,
+                'L', x2, y + 2 * strokeW,
+                'L', x1, y + 2 * strokeW,
+                'L', x2, y + 2 * strokeW,
+                'L', x2, y + 4 * strokeW,
+                'L', x1, y + 4 * strokeW,
+                'L', x2, y + 4 * strokeW,
+                'L', x2, y + 6 * strokeW
+            ];
+        };
+
         Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
             var series = this,
-                options = series.options;
+                options = series.options,
+                strokeW = series.borderWidth || 0;
+
             proceed.apply(series);
 
-            if (options.draggableX || options.draggableY) {
+            if (this.useDragHandle() & (options.draggableX || options.draggableY)) {
 
                 each(series.points, function (point) {
 
                     var shapeArgs = point.shapeArgs,
-                        path = [
-                            'M', shapeArgs.x, shapeArgs.y, 
-                            'L', shapeArgs.x + shapeArgs.width, shapeArgs.y,
-                            'L', shapeArgs.x + shapeArgs.width, shapeArgs.y + 5,
-                            'L', shapeArgs.x, shapeArgs.y + 5
-                        ];
+                        path = (options.dragHandlePath || series.dragHandlePath)(point.shapeArgs, strokeW);
 
                     if (!point.handle) {
                         point.handle = series.chart.renderer.path(path)
                             .attr({
-                                fill: 'rgba(0, 0, 0, 0.5)',
-                                'class': 'highcharts-handle'
+                                fill: options.dragHandleFill || 'rgba(0,0,0,0.5)',
+                                'class': 'highcharts-handle',
+                                'stroke-width': strokeW,
+                                'stroke': options.dragHandleStroke || options.borderColor || 1
                             })
                             .css({
                                 cursor: 'ns-resize'
