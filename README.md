@@ -24,6 +24,6 @@ Online demos:
 | `plotOptions.series.dragMinX` | Number | The minimum X value to drag to for this series. |
 | `plotOptions.series.dragMinY` | Number | The minimum Y value to drag to for this series. |
 | `plotOptions.series.point.events.drag` | Function | Callback that fires while dragging. Temporary point values can be read from `e.newX` and `e.newY`. |
-| `plotOptions.series.point.events.drop | Function | Callback that fires when the point is dropped. The `Point` object is the context. |
+| `plotOptions.series.point.events.drop` | Function | Callback that fires when the point is dropped. The `Point` object is the context. |
 
 
