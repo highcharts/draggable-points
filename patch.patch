@@ -1,0 +1,74 @@
+From 6e7efbd3eeb40e16901b212a54408a3a502fc9b5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Torstein=20H=C3=B8nsi?= <torstein@highsoft.com>
+Date: Mon, 20 Oct 2014 10:16:54 +0200
+Subject: [PATCH] Removed obsolete code
+
+---
+ draggable-points.js | 30 ------------------------------
+ 1 file changed, 30 deletions(-)
+
+diff --git a/draggable-points.js b/draggable-points.js
+index 627e06e..bd75a14 100644
+--- a/draggable-points.js
++++ b/draggable-points.js
+@@ -36,9 +36,17 @@
+                 dragPlotY;
+
+             function mouseDown(e) {
+-                var hoverPoint = chart.hoverPoint,
+-                    options,
+-                    originalEvent = e.originalEvent || e;
++                var options,
++                    originalEvent = e.originalEvent || e,
++                    hoverPoint;
++
++                if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
++                    hoverPoint = originalEvent.target.point;
++                }
++                
++                if (!hoverPoint && chart.hoverPoint && !chart.hoverPoint.series.dragRequiresHandle) {
++                    hoverPoint = chart.hoverPoint;
++                }
+
+                 if (hoverPoint) {
+                     options = hoverPoint.series.options;
+@@ -169,6 +177,7 @@
+         /**
+          * Extend the column chart tracker by visualizing the tracker object for small points
+          */
++        Highcharts.seriesTypes.column.prototype.dragRequiresHandle = true;
+         Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
+             var series = this,
+                 options = series.options;
+@@ -178,15 +187,31 @@
+
+                 each(series.points, function (point) {
+
+-
+-                    point.graphic.attr(point.shapeArgs.height < 3 ? {
+-                        'stroke': 'black',
+-                            'stroke-width': 2,
+-                            'dashstyle': 'shortdot'
+-                    } : {
+-                        'stroke-width': series.options.borderWidth,
+-                            'dashstyle': series.options.dashStyle || 'solid'
+-                    });
++                    var shapeArgs = point.shapeArgs,
++                        path = [
++                            'M', shapeArgs.x, shapeArgs.y, 
++                            'L', shapeArgs.x + shapeArgs.width, shapeArgs.y,
++                            'L', shapeArgs.x + shapeArgs.width, shapeArgs.y + 5,
++                            'L', shapeArgs.x, shapeArgs.y + 5
++                        ];
++
++                    if (!point.handle) {
++                        point.handle = series.chart.renderer.path(path)
++                            .attr({
++                                fill: 'rgba(0, 0, 0, 0.5)',
++                                'class': 'highcharts-handle'
++                            })
++                            .css({
++                                cursor: 'ns-resize'
++                            })
++                            .add(series.group);
++

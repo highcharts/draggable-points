@@ -2,7 +2,9 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
+ * Version: 1.2.0
  */
+
 /*global document, Highcharts */
 (function (Highcharts) {
 
@@ -68,9 +70,19 @@
         }
 
         function mouseDown(e) {
-            var hoverPoint = chart.hoverPoint,
-                options,
-                originalEvent = e.originalEvent || e;
+            var options,
+                originalEvent = e.originalEvent || e,
+                hoverPoint,
+                series;
+
+            if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
+                hoverPoint = originalEvent.target.point;
+            }
+
+            series = chart.hoverPoint && chart.hoverPoint.series;
+            if (!hoverPoint && chart.hoverPoint && (!series.useDragHandle || !series.useDragHandle())) {
+                hoverPoint = chart.hoverPoint;
+            }
 
             if (hoverPoint) {
                 options = hoverPoint.series.options;
@@ -141,9 +153,9 @@
                             chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
                         }
                         if (series.stackKey) {
-                            chart.redraw(false);
+                            chart.redraw();
                         } else {
-                            series.redraw(false);
+                            series.redraw();
                         }
                     }
                 );
@@ -154,6 +166,9 @@
                 }
             }
         }
+
+        // Kill animation on first drag when chart.animation is set to false.
+        chart.redraw();
 
         // Add'em
         addEvent(container, 'mousemove', mouseMove);
@@ -168,23 +183,60 @@
     /**
      * Extend the column chart tracker by visualizing the tracker object for small points
      */
+    Highcharts.seriesTypes.column.prototype.useDragHandle = function () {
+        var is3d = this.chart.is3d && this.chart.is3d();
+        return !is3d;
+    };
+
+    Highcharts.seriesTypes.column.prototype.dragHandlePath = function (shapeArgs, strokeW) {
+        var x1 = shapeArgs.x,
+            y = shapeArgs.y,
+            x2 = shapeArgs.x + shapeArgs.width;
+
+        return [
+            'M', x1, y + 6 * strokeW,
+            'L', x1, y,
+            'L', x2, y,
+            'L', x2, y + 2 * strokeW,
+            'L', x1, y + 2 * strokeW,
+            'L', x2, y + 2 * strokeW,
+            'L', x2, y + 4 * strokeW,
+            'L', x1, y + 4 * strokeW,
+            'L', x2, y + 4 * strokeW,
+            'L', x2, y + 6 * strokeW
+        ];
+    };
+
     Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
-        var chart = this.chart,
-            options = this.options,
-            is3d = chart.is3d && chart.is3d();
+        var series = this,
+            options = series.options,
+            strokeW = series.borderWidth || 0;
 
-        proceed.apply(this);
+        proceed.apply(series);
 
-        if (!is3d && (options.draggableX || options.draggableY)) {
-            each(this.points, function (point) {
-                point.graphic.attr(point.shapeArgs.height < 3 ? {
-                    'stroke': 'black',
-                    'stroke-width': 2,
-                    'dashstyle': 'shortdot'
-                } : {
-                    'stroke-width': options.borderWidth,
-                    'dashstyle': options.dashStyle || 'solid'
-                });
+        if (this.useDragHandle() && (options.draggableX || options.draggableY)) {
+
+            each(series.points, function (point) {
+
+                var path = (options.dragHandlePath || series.dragHandlePath)(point.shapeArgs, strokeW);
+
+                if (!point.handle) {
+                    point.handle = series.chart.renderer.path(path)
+                        .attr({
+                            fill: options.dragHandleFill || 'rgba(0,0,0,0.5)',
+                            'class': 'highcharts-handle',
+                            'stroke-width': strokeW,
+                            'stroke': options.dragHandleStroke || options.borderColor || 1
+                        })
+                        .css({
+                            cursor: 'ns-resize'
+                        })
+                        .add(series.group);
+
+                    point.handle.element.point = point;
+                } else {
+                    point.handle.attr({ d: path });
+                }
             });
         }
     });
