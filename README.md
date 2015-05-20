@@ -7,7 +7,7 @@ This plugin is published under the MIT license, and the license document is incl
 
 Online demos:
 * [Combined series](http://jsfiddle.net/highcharts/AyUbx/) 
-* [Bubble series](http://jsfiddle.net/highcharts/sk3m3o7d/).
+* [Bubble series](http://jsfiddle.net/highcharts/sk3m3o7d/)
 
 ### Options
 
