@@ -30,6 +30,7 @@
         return newY;
     }
 
+
     Highcharts.Chart.prototype.callbacks.push(function (chart) {
 
         var container = chart.container,
@@ -39,36 +40,48 @@
             dragPlotX,
             dragPlotY;
 
+        /**
+         * Get the new values based on the drag event
+         */
+        function getNewPos(e) {
+            var originalEvent = e.originalEvent || e,
+                pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
+                pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
+                draggableX = dragPoint.series.options.draggableX,
+                draggableY = dragPoint.series.options.draggableY,
+                deltaX = dragX - pageX,
+                deltaY = dragY - pageY,
+                series = dragPoint.series,
+                newPlotX = dragPlotX - deltaX,
+                newPlotY = dragPlotY - deltaY,
+                newX = dragX === undefined ? dragPoint.x : series.xAxis.toValue(newPlotX, true),
+                newY = dragY === undefined ? dragPoint.y : series.yAxis.toValue(newPlotY, true);
+
+            newX = filterRange(newX, series, 'X');
+            newY = filterRange(newY, series, 'Y');
+
+            return {
+                x: draggableX ? newX : dragPoint.x,
+                y: draggableY ? newY : dragPoint.y
+            };
+        }
+
+        /**
+         * Handler for mouseup
+         */
         function drop(e) {
             if (dragPoint) {
                 if (e) {
-                    var originalEvent = e.originalEvent || e,
-                        pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
-                        pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
-                        draggableX = dragPoint.series.options.draggableX,
-                        draggableY = dragPoint.series.options.draggableY,
-                        deltaX = dragX - pageX,
-                        deltaY = dragY - pageY,
-                        series = dragPoint.series,
-                        isScatter = series.type === 'bubble' || series.type === 'scatter',
-                        newPlotX = isScatter ? dragPlotX - deltaX : dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
-                        newPlotY = chart.plotHeight - dragPlotY + deltaY,
-                        newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
-                        newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true);
-
-                    newX = filterRange(newX, series, 'X');
-                    newY = filterRange(newY, series, 'Y');
-
-                    dragPoint.update({
-                        x: draggableX ? newX : dragPoint.x,
-                        y: draggableY ? newY : dragPoint.y
-                    });
+                    dragPoint.update(getNewPos(e));
                 }
                 dragPoint.firePointEvent('drop');
             }
             dragPoint = dragX = dragY = undefined;
         }
 
+        /**
+         * Handler for mousedown
+         */
         function mouseDown(e) {
             var options,
                 originalEvent = e.originalEvent || e,
@@ -106,43 +119,27 @@
             }
         }
 
+        /**
+         * Handler for mousemove. If the mouse button is pressed, drag the element.
+         */
         function mouseMove(e) {
 
             e.preventDefault();
 
             if (dragPoint) {
-                var originalEvent = e.originalEvent || e,
-                    pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
-                    pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
-                    deltaY = dragY - pageY,
-                    deltaX = dragX - pageX,
-                    draggableX = dragPoint.series.options.draggableX,
-                    draggableY = dragPoint.series.options.draggableY,
-                    series = dragPoint.series,
-                    isScatter = series.type === 'bubble' || series.type === 'scatter',
-                    newPlotX = isScatter ? dragPlotX - deltaX : dragPlotX - deltaX - dragPoint.series.xAxis.minPixelPadding,
-                    newPlotY = chart.plotHeight - dragPlotY + deltaY,
-                    newX = dragX === undefined ? dragPoint.x : dragPoint.series.xAxis.translate(newPlotX, true),
-                    newY = dragY === undefined ? dragPoint.y : dragPoint.series.yAxis.translate(newPlotY, true),
-                    proceed;
 
-                newX = filterRange(newX, series, 'X');
-                newY = filterRange(newY, series, 'Y');
+                var newPos = getNewPos(e),
+                    proceed,
+                    series = dragPoint.series;
 
                 // Fire the 'drag' event with a default action to move the point.
                 dragPoint.firePointEvent(
                     'drag',
-                    {
-                        newX: draggableX ? newX : dragPoint.x,
-                        newY: draggableY ? newY : dragPoint.y
-                    },
+                    newPos,
                     function () {
                         proceed = true;
 
-                        dragPoint.update({
-                            x: draggableX ? newX : dragPoint.x,
-                            y: draggableY ? newY : dragPoint.y
-                        }, false);
+                        dragPoint.update(newPos, false);
 
                         // Hide halo while dragging (#14)
                         if (series.halo) {
