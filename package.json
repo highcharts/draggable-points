@@ -1,0 +1,20 @@
+{
+  "name": "highcharts-draggable-points",
+  "version": "1.2.0",
+  "description": "Highcharts plugin that adds draggable points.",
+  "main": "draggable-points.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/highslide-software/draggable-points.git"
+  },
+  "keywords": [
+    "draggable",
+    "highcharts"
+  ],
+  "author": "Torstein Hønsi (https://github.com/highslide-software)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/highslide-software/draggable-points/issues"
+  },
+  "homepage": "https://github.com/highslide-software/draggable-points#readme"
+}
