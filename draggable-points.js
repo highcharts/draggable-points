@@ -2,7 +2,7 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- * Version: 2.0.0
+ * Version: 2.0.1
  */
 
 /*global document, Highcharts */
@@ -80,6 +80,7 @@
                 if (e) {
                     dragPoint.update(getNewPos(e));
                 }
+                delete dragPoint.series.directTouch; // Go back to prototype value
                 dragPoint.firePointEvent('drop');
             }
             dragPoint = dragX = dragY = undefined;
@@ -121,6 +122,7 @@
                 // Disable zooming when dragging
                 if (dragPoint) {
                     chart.mouseIsDown = false;
+                    dragPoint.series.directTouch = true; // Prevent k-d-tree to cause flickering (#43)
                 }
             }
         }

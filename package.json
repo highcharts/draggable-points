@@ -1,6 +1,6 @@
 {
   "name": "highcharts-draggable-points",
-  "version": "1.2.0",
+  "version": "2.0.1",
   "description": "Highcharts plugin that adds draggable points.",
   "main": "draggable-points.js",
   "repository": {
