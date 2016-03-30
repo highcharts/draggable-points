@@ -2,7 +2,7 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- * Version: 2.0.1
+ * Version: 2.0.2 (2016-03-30)
  */
 
 /*global document, Highcharts */
@@ -80,7 +80,6 @@
                 if (e) {
                     dragPoint.update(getNewPos(e));
                 }
-                delete dragPoint.series.directTouch; // Go back to prototype value
                 dragPoint.firePointEvent('drop');
             }
             dragPoint = dragX = dragY = undefined;
@@ -122,7 +121,6 @@
                 // Disable zooming when dragging
                 if (dragPoint) {
                     chart.mouseIsDown = false;
-                    dragPoint.series.directTouch = true; // Prevent k-d-tree to cause flickering (#43)
                 }
             }
         }
@@ -137,14 +135,17 @@
             if (dragPoint) {
 
                 var newPos = getNewPos(e),
-                    proceed,
-                    series = dragPoint.series;
+                    proceed;
 
                 // Fire the 'drag' event with a default action to move the point.
                 dragPoint.firePointEvent(
                     'drag',
                     newPos,
                     function () {
+
+                        var kdTree,
+                            series = dragPoint.series;
+
                         proceed = true;
 
                         dragPoint.update(newPos, false);
@@ -154,13 +155,22 @@
                             series.halo = series.halo.destroy();
                         }
 
+                        // Let the tooltip follow and reflect the drag point
                         if (chart.tooltip) {
                             chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
                         }
+
+                        // Stacking requires full redraw
                         if (series.stackKey) {
                             chart.redraw();
+
+                        // Do a series redraw only. Let the k-d-tree survive the redraw in order to 
+                        // prevent tooltip flickering (#43).
                         } else {
+
+                            kdTree = series.kdTree;
                             series.redraw();
+                            series.kdTree = kdTree;
                         }
                     }
                 );
