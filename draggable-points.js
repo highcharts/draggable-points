@@ -79,6 +79,7 @@
             if (dragPoint) {
                 if (e) {
                     dragPoint.update(getNewPos(e));
+                    dragPoint.series.buildKDTree(); // Update k-d-tree immediately to prevent tooltip jump (#43)
                 }
                 dragPoint.firePointEvent('drop');
             }
