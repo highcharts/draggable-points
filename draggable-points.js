@@ -110,6 +110,8 @@
             if (hoverPoint) {
                 options = hoverPoint.series.options;
                 if (options.draggableX) {
+                    console.log('TT');
+                    console.log(this);
                     dragPoint = hoverPoint;
                     dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
                     dragPlotX = dragPoint.plotX;
