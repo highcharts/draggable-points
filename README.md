@@ -14,6 +14,8 @@ Online demos:
 | Option name | Type | Description |
 | ----------- | ---- | ----------- |
 | `plotOptions.series.cursor`| String | Highcharts core option. We recommend setting a cursor that indicates to your users that the point can be dragged, for example `ns-resize` or `move`. |
+| `plotOptions.series.data.draggableX` | Boolean | If dragging is enabled on the series, set this to false to prevent dragging on a single point. |
+| `plotOptions.series.data.draggableY` | Boolean | If dragging is enabled on the series, set this to false to prevent dragging on a single point. |
 | `plotOptions.series.draggableX` | Boolean | Enable draggable along the X axis. |
 | `plotOptions.series.draggableY` | Boolean | Enable draggable along the Y axis. |
 | `plotOptions.series.dragHandlePath` | Function | Column series only. A custom path for the drag handle. |

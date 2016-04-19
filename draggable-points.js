@@ -109,13 +109,13 @@
 
             if (hoverPoint) {
                 options = hoverPoint.series.options;
-                if (options.draggableX) {
+                if (options.draggableX && hoverPoint.draggableX !== false) {
                     dragPoint = hoverPoint;
                     dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
                     dragPlotX = dragPoint.plotX;
                 }
 
-                if (options.draggableY) {
+                if (options.draggableY && hoverPoint.draggableY !== false) {
                     dragPoint = hoverPoint;
 
                     dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
