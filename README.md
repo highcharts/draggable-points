@@ -2,7 +2,7 @@ Draggable Points for Highcharts
 ================
 This plugin allows the user to drag the points in the chart, making them able to edit data directly in the chart.
 
-The contents of the plugin is located in the javascript file "draggable-points.js". 
+The contents of the plugin is located in the javascript file `draggable-points.js`. 
 This plugin is published under the MIT license, and the license document is included in the repository.
 
 Online demos:
@@ -25,6 +25,7 @@ Online demos:
 | `plotOptions.series.dragMaxY` | Number | The maximum Y value to drag to for this series. |
 | `plotOptions.series.dragMinX` | Number | The minimum X value to drag to for this series. |
 | `plotOptions.series.dragMinY` | Number | The minimum Y value to drag to for this series. |
+| `plotOptions.series.dragSensitivity` | Number | The amount of pixels to drag the pointer before it counts as a drag operation. This prevents drag/drop to fire when just clicking or selecting points. Defaults to 1. |
 | `plotOptions.series.point.events.drag` | Function | Callback that fires while dragging. Temporary point values can be read from `e.newX` and `e.newY`. |
 | `plotOptions.series.point.events.drop` | Function | Callback that fires when the point is dropped. The `Point` object is the context. |
 

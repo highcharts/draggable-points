@@ -1,6 +1,6 @@
 {
   "name": "highcharts-draggable-points",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Highcharts plugin that allows points to be dragged and dropped by mouse or touch.",
   "main": "draggable-points.js",
   "repository": {
