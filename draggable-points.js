@@ -143,7 +143,6 @@
         function mouseMove(e) {
 
             e.preventDefault();
-console.log('@mouseMove', dragPoint)
             if (dragPoint) {
 
                 var newPos = getNewPos(e),
