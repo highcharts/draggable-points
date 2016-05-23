@@ -54,8 +54,8 @@
                 pageX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX,
                 pageY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY,
                 series = dragPoint.series,
-                draggableX = series.options.draggableX,
-                draggableY = series.options.draggableY,
+                draggableX = series.options.draggableX && dragPoint.draggableX !== false,
+                draggableY = series.options.draggableY && dragPoint.draggableY !== false,
                 dragSensitivity = pick(series.options.dragSensitiviy, 1),
                 deltaX = draggableX ? dragX - pageX : 0,
                 deltaY = draggableY ? dragY - pageY : 0,
@@ -143,7 +143,7 @@
         function mouseMove(e) {
 
             e.preventDefault();
-console.log('@mouseMove', dragPoint)
+
             if (dragPoint) {
 
                 var newPos = getNewPos(e),
