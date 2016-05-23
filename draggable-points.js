@@ -2,7 +2,7 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- * Version: 2.0.3 (2016-04-27)
+ * Version: 2.0.4 (2016-05-23)
  */
 
 /*global document, Highcharts */
@@ -41,6 +41,7 @@
 
         var container = chart.container,
             dragPoint,
+            dragStart,
             dragX,
             dragY,
             dragPlotX,
@@ -92,7 +93,8 @@
                         dragPoint.series.buildKDTree();
                     }
                 }
-                dragPoint.firePointEvent('drop');
+                newPos.dragStart = dragStart;
+                dragPoint.firePointEvent('drop', newPos);
             }
             dragPoint = dragX = dragY = undefined;
         }
@@ -117,10 +119,12 @@
 
             if (hoverPoint) {
                 options = hoverPoint.series.options;
+                dragStart = {};
                 if (options.draggableX && hoverPoint.draggableX !== false) {
                     dragPoint = hoverPoint;
                     dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
                     dragPlotX = dragPoint.plotX;
+                    dragStart.x = dragPoint.x;
                 }
 
                 if (options.draggableY && hoverPoint.draggableY !== false) {
@@ -128,6 +132,7 @@
 
                     dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
                     dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
+                    dragStart.y = dragPoint.y;
                 }
 
                 // Disable zooming when dragging
@@ -143,17 +148,18 @@
         function mouseMove(e) {
 
             e.preventDefault();
-            
+
             if (dragPoint) {
 
-                var newPos = getNewPos(e),
+                var evtArgs = getNewPos(e), // Gets x and y
                     proceed;
 
                 // Fire the 'drag' event with a default action to move the point.
-                if (newPos) {
+                if (evtArgs) {
+                    evtArgs.dragStart = dragStart;
                     dragPoint.firePointEvent(
                         'drag',
-                        newPos,
+                        evtArgs,
                         function () {
 
                             var kdTree,
@@ -161,7 +167,7 @@
 
                             proceed = true;
 
-                            dragPoint.update(newPos, false);
+                            dragPoint.update(evtArgs, false);
 
                             // Hide halo while dragging (#14)
                             if (series.halo) {
