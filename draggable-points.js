@@ -143,10 +143,7 @@
         function mouseMove(e) {
 
             e.preventDefault();
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
+            
             if (dragPoint) {
 
                 var newPos = getNewPos(e),
