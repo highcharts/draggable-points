@@ -74,6 +74,8 @@
                     x: draggableX ? newX : dragPoint.x,
                     y: draggableY ? newY : dragPoint.y
                 };
+            } else 
+                return null;
             }
         }
 
@@ -93,8 +95,10 @@
                         dragPoint.series.buildKDTree();
                     }
                 }
-                newPos.dragStart = dragStart;
-                dragPoint.firePointEvent('drop', newPos);
+                if (newPos) {
+                    newPos.dragStart = dragStart;
+                    dragPoint.firePointEvent('drop', newPos);
+                }
             }
             dragPoint = dragX = dragY = undefined;
         }
