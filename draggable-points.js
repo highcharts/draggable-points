@@ -74,7 +74,7 @@
                     x: draggableX ? newX : dragPoint.x,
                     y: draggableY ? newY : dragPoint.y
                 };
-            } else 
+            } else {
                 return null;
             }
         }
