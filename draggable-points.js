@@ -20,13 +20,19 @@
         each = Highcharts.each,
         pick = Highcharts.pick;
 
-    /**
+
+     /**
      * Filter by dragMin and dragMax
      */
     function filterRange(newY, series, XOrY) {
         var options = series.options,
             dragMin = pick(options['dragMin' + XOrY], undefined),
-            dragMax = pick(options['dragMax' + XOrY], undefined);
+            dragMax = pick(options['dragMax' + XOrY], undefined),
+            precision = pick(options['dragPrecision' + XOrY], undefined);
+        
+        if(!isNaN(precision)) {
+        	newY = Math.round(newY / precision) * precision;
+        }
 
         if (newY < dragMin) {
             newY = dragMin;
