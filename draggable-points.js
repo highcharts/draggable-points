@@ -217,13 +217,12 @@
         chart.redraw();
 
         // Add'em
-        addEvent(container, 'mousemove', mouseMove);
-        addEvent(container, 'touchmove', mouseMove);
+        addEvent(document, 'mousemove', mouseMove);
+        addEvent(document, 'touchmove', mouseMove);
         addEvent(container, 'mousedown', mouseDown);
         addEvent(container, 'touchstart', mouseDown);
         addEvent(document, 'mouseup', drop);
         addEvent(document, 'touchend', drop);
-        addEvent(container, 'mouseleave', drop);
     });
 
     /**
