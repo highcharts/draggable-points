@@ -38,6 +38,8 @@
             newY = dragMin;
         } else if (newY > dragMax) {
             newY = dragMax;
+        } else if (newY > series.yAxis.max) {
+            newY = series.yAxis.max;
         }
         return newY;
     }
