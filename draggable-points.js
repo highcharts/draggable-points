@@ -6,6 +6,11 @@
  */
 
 /*global document, Highcharts */
+/* eslint-disable */
+
+var toggle = require('./toggle_icon.png');
+var toggleRed = require('./toggle_icon_red.png');
+
 (function (factory) {
     if (typeof module === 'object' && module.exports) {
         module.exports = factory;
@@ -31,13 +36,15 @@
             precision = pick(options['dragPrecision' + XOrY], undefined);
         
         if(!isNaN(precision)) {
-        	newY = Math.round(newY / precision) * precision;
+            newY = Math.round(newY / precision) * precision;
         }
 
         if (newY < dragMin) {
             newY = dragMin;
         } else if (newY > dragMax) {
             newY = dragMax;
+        } else if (newY > series.yAxis.max) {
+            newY = series.yAxis.max;
         }
         return newY;
     }
@@ -157,7 +164,7 @@
          */
         function mouseMove(e) {
 
-            e.preventDefault();
+            //e.preventDefault();
 
             if (dragPoint) {
 
@@ -217,13 +224,13 @@
         chart.redraw();
 
         // Add'em
-        addEvent(container, 'mousemove', mouseMove);
-        addEvent(container, 'touchmove', mouseMove);
+        addEvent(document, 'mousemove', mouseMove);
+        addEvent(document, 'touchmove', mouseMove);
         addEvent(container, 'mousedown', mouseDown);
         addEvent(container, 'touchstart', mouseDown);
         addEvent(document, 'mouseup', drop);
         addEvent(document, 'touchend', drop);
-        addEvent(container, 'mouseleave', drop);
+        //addEvent(container, 'mouseleave', drop);
     });
 
     /**
@@ -235,9 +242,9 @@
     };
 
     Highcharts.seriesTypes.column.prototype.dragHandlePath = function (shapeArgs, strokeW) {
-        var x1 = shapeArgs.x,
+        var x1 = shapeArgs.x - 10,
             y = shapeArgs.y,
-            x2 = shapeArgs.x + shapeArgs.width;
+            x2 = shapeArgs.x + shapeArgs.width + 10;
 
         return [
             'M', x1, y + 6 * strokeW,
@@ -265,9 +272,10 @@
             each(series.points, function (point) {
 
                 var path = (options.dragHandlePath || series.dragHandlePath)(point.shapeArgs, strokeW);
+                var x = series.index === 0 ? -19 : 8;
 
                 if (!point.handle) {
-                    point.handle = series.chart.renderer.path(path)
+                    /*point.handle = series.chart.renderer.path(path)
                         .attr({
                             fill: options.dragHandleFill || 'rgba(0,0,0,0.5)',
                             'class': 'highcharts-handle',
@@ -277,11 +285,25 @@
                         .css({
                             cursor: 'ns-resize'
                         })
-                        .add(series.group);
+                        .add(series.group);*/
+                    var image = series.index === 0 ? toggle : toggleRed;
+                    
+                    point.handle = series.chart.renderer.image(image, point.shapeArgs.x + x, point.shapeArgs.y - 7, 19, 15)
+                    .attr({
+                        'class': 'highcharts-handle',
+                    })
+                    .css({
+                        cursor: 'ns-resize',
+                    })
+                    .add(series.group);
 
                     point.handle.element.point = point;
                 } else {
-                    point.handle.attr({ d: path });
+                    //point.handle.attr({ d: path });
+                    point.handle.attr({
+                        x: point.shapeArgs.x + x,
+                        y: point.shapeArgs.y - 7,
+                    });
                 }
             });
         }
