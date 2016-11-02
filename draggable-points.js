@@ -21,7 +21,7 @@
         pick = Highcharts.pick;
 
 
-     /**
+    /**
      * Filter by dragMin and dragMax
      */
     function filterRange(newY, series, XOrY) {
@@ -29,9 +29,9 @@
             dragMin = pick(options['dragMin' + XOrY], undefined),
             dragMax = pick(options['dragMax' + XOrY], undefined),
             precision = pick(options['dragPrecision' + XOrY], undefined);
-        
-        if(!isNaN(precision)) {
-        	newY = Math.round(newY / precision) * precision;
+
+        if (!isNaN(precision)) {
+            newY = Math.round(newY / precision) * precision;
         }
 
         if (newY < dragMin) {
@@ -51,7 +51,12 @@
             dragX,
             dragY,
             dragPlotX,
-            dragPlotY;
+            dragPlotY,
+            dragPlotHigh,
+            dragPlotLow,
+            changeLow,
+            newHigh,
+            newLow;
 
         /**
          * Get the new values based on the drag event
@@ -74,11 +79,20 @@
 
             newX = filterRange(newX, series, 'X');
             newY = filterRange(newY, series, 'Y');
-
+            if (dragPoint.low) {
+                var newPlotHigh = dragPlotHigh - deltaY,
+                    newPlotLow = dragPlotLow - deltaY;
+                newHigh = dragY === undefined ? dragPoint.high : series.yAxis.toValue(newPlotHigh, true);
+                newLow = dragY === undefined ? dragPoint.low : series.yAxis.toValue(newPlotLow, true);
+                newHigh = filterRange(newHigh, series, 'Y');
+                newLow = filterRange(newLow, series, 'Y');
+            }
             if (Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)) > dragSensitivity) {
                 return {
                     x: draggableX ? newX : dragPoint.x,
-                    y: draggableY ? newY : dragPoint.y
+                    y: draggableY ? newY : dragPoint.y,
+                    high: (draggableY && !changeLow) ? newHigh : dragPoint.high,
+                    low: (draggableY && changeLow) ? newLow : dragPoint.low,
                 };
             } else {
                 return null;
@@ -143,6 +157,11 @@
                     dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
                     dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
                     dragStart.y = dragPoint.y;
+                    if (dragPoint.plotHigh) {
+                        dragPlotHigh = dragPoint.plotHigh;
+                        dragPlotLow = dragPoint.plotLow;
+                        changeLow = (Math.abs(dragPlotLow - (dragY - 60)) < Math.abs(dragPlotHigh - (dragY - 60))) ? true : false;
+                    }
                 }
 
                 // Disable zooming when dragging
@@ -193,8 +212,8 @@
                             if (series.stackKey) {
                                 chart.redraw();
 
-                            // Do a series redraw only. Let the k-d-tree survive the redraw in order to 
-                            // prevent tooltip flickering (#43).
+                                // Do a series redraw only. Let the k-d-tree survive the redraw in order to
+                                // prevent tooltip flickering (#43).
                             } else {
 
                                 kdTree = series.kdTree;
@@ -281,7 +300,7 @@
 
                     point.handle.element.point = point;
                 } else {
-                    point.handle.attr({ d: path });
+                    point.handle.attr({d: path});
                 }
             });
         }
