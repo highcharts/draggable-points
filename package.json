@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/highslide-software/draggable-points/issues"
   },
-  "homepage": "https://github.com/highslide-software/draggable-points#readme"
+  "homepage": "https://github.com/highslide-software/draggable-points#readme",
+  "dependencies": {
+    "highcharts": ">=3.0.0"
+  }
 }

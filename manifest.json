@@ -29,7 +29,11 @@
           "name": "Paweł Fus",
           "email": "pawel@blacklabel.pl",
           "url": "http://www.blacklabel.pl"
-        }
+        },{
+        "name": "Sebastian Zillessen",
+        "email": "sebastian@zillessen.info",
+        "url": "https://github.com/sebastianzillessen"
+      }
     ],
     "dependencies": {
         "Highcharts": ">=3.0.0"
