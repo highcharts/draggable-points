@@ -2,7 +2,7 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- * Version: 2.0.4 (2016-05-23)
+ * Version: 2.0.6 (2017-02-03)
  */
 
 /*global document, Highcharts */
@@ -232,6 +232,12 @@
             }
         }
 
+        function conditionalDrop(e) {
+            if (dragPoint && dragPoint.series.options.allowDragOutsideChartArea) {
+                return;
+            }
+            drop(e);
+        }
         // Kill animation on first drag when chart.animation is set to false.
         chart.redraw();
 
@@ -242,7 +248,7 @@
         addEvent(container, 'touchstart', mouseDown);
         addEvent(document, 'mouseup', drop);
         addEvent(document, 'touchend', drop);
-        addEvent(container, 'mouseleave', drop);
+        addEvent(container, 'mouseleave', conditionalDrop)
     });
 
     /**
