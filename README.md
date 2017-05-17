@@ -18,6 +18,7 @@ Online demos:
 | `plotOptions.series.data.draggableY` | Boolean | If dragging is enabled on the series, set this to false to prevent dragging on a single point. |
 | `plotOptions.series.draggableX` | Boolean | Enable draggable along the X axis. |
 | `plotOptions.series.draggableY` | Boolean | Enable draggable along the Y axis. |
+| `plotOptions.series.allowDragOutsideChartArea` | Boolean | Dragging will contine outside chart area. Defaults to false which automatically triggers a drop on mouseleave. |
 | `plotOptions.series.dragHandlePath` | Function | Column series only. A custom path for the drag handle. |
 | `plotOptions.series.dragHandleFill` | Function | Column series only. Fill color for the drag handle. |
 | `plotOptions.series.dragHandleStroke` | Function | Column series only. Stroke color for the drag handle. |
