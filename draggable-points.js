@@ -176,9 +176,9 @@
          */
         function mouseMove(e) {
 
-            e.preventDefault();
-
             if (dragPoint) {
+
+                e.preventDefault();
 
                 var evtArgs = getNewPos(e), // Gets x and y
                     proceed;
