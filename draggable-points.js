@@ -204,9 +204,8 @@
                             }
 
                             // Let the tooltip follow and reflect the drag point
-                            if (chart.tooltip) {
-                                chart.tooltip.refresh(chart.tooltip.shared ? [dragPoint] : dragPoint);
-                            }
+                            chart.pointer.reset(true);
+
 
                             // Stacking requires full redraw
                             if (series.stackKey) {
