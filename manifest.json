@@ -1,6 +1,6 @@
 {
     "name": "Draggable Points",
-    "version": "2.0.5",
+    "version": "2.0.6",
     "title": "Highcharts Draggable Points",
     "demo": [
         "[Combined series](https://jsfiddle.net/highcharts/AyUbx/)",

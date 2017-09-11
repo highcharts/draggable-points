@@ -2,7 +2,7 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- * Version: 2.0.5 (2016-11-03)
+ * Version: 2.0.6 (2017-09-11)
  */
 
 /*global document, Highcharts */
@@ -18,6 +18,7 @@
 
     var addEvent = Highcharts.addEvent,
         each = Highcharts.each,
+        extend = Highcharts.extend,
         pick = Highcharts.pick;
 
 
@@ -93,6 +94,8 @@
                     y: draggableY ? newY : dragPoint.y,
                     high: (draggableY && !changeLow) ? newHigh : dragPoint.high,
                     low: (draggableY && changeLow) ? newLow : dragPoint.low,
+                    dragStart: dragStart,
+                    originalEvent: e
                 };
             } else {
                 return null;
@@ -103,24 +106,21 @@
          * Handler for mouseup
          */
         function drop(e) {
-            var newPos;
-            if (dragPoint) {
-                if (e) {
-                    newPos = getNewPos(e);
-                    if (newPos) {
-                        dragPoint.update(newPos);
+            var newPos = dragPoint && e && getNewPos(e);
 
-                        // Update k-d-tree immediately to prevent tooltip jump (#43)
-                        dragPoint.series.options.kdNow = true;
-                        dragPoint.series.buildKDTree();
-                    }
-                }
-                if (newPos) {
-                    newPos.dragStart = dragStart;
-                    dragPoint.firePointEvent('drop', newPos);
-                }
+            if (newPos) {
+                dragPoint.firePointEvent('drop', newPos, function () {
+                    dragPoint.update(newPos);
+
+                    // Update k-d-tree immediately to prevent tooltip jump (#43)
+                    dragPoint.series.options.kdNow = true;
+                    dragPoint.series.buildKDTree();
+
+                    // Reset
+                    dragPoint = dragX = dragY = undefined;
+                });
             }
-            dragPoint = dragX = dragY = undefined;
+            
         }
 
         /**
@@ -185,7 +185,6 @@
 
                 // Fire the 'drag' event with a default action to move the point.
                 if (evtArgs) {
-                    evtArgs.dragStart = dragStart;
                     dragPoint.firePointEvent(
                         'drag',
                         evtArgs,
