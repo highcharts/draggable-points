@@ -108,6 +108,10 @@
         function drop(e) {
             var newPos = dragPoint && e && getNewPos(e);
 
+            function reset() {
+                dragPoint = dragX = dragY = undefined;
+            }
+
             if (newPos) {
                 dragPoint.firePointEvent('drop', newPos, function () {
                     dragPoint.update(newPos);
@@ -116,9 +120,10 @@
                     dragPoint.series.options.kdNow = true;
                     dragPoint.series.buildKDTree();
 
-                    // Reset
-                    dragPoint = dragX = dragY = undefined;
+                    reset();
                 });
+            } else {
+                reset();
             }
             
         }
