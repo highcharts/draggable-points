@@ -136,7 +136,8 @@
             var options,
                 originalEvent = e.originalEvent || e,
                 hoverPoint,
-                series;
+                series,
+                bottom;
 
             if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
                 hoverPoint = originalEvent.target.point;
@@ -159,9 +160,11 @@
 
                 if (options.draggableY && hoverPoint.draggableY !== false) {
                     dragPoint = hoverPoint;
+                    // Added support for normal stacking (#78)
+                    bottom = pick(series.translatedThreshold, chart.plotHeight);
 
                     dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
-                    dragPlotY = dragPoint.plotY + (chart.plotHeight - (dragPoint.yBottom || chart.plotHeight));
+                    dragPlotY = dragPoint.plotY + (bottom - (dragPoint.yBottom || bottom));
                     dragStart.y = dragPoint.y;
                     if (dragPoint.plotHigh) {
                         dragPlotHigh = dragPoint.plotHigh;
