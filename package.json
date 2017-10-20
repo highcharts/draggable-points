@@ -1,22 +1,22 @@
 {
   "name": "highcharts-draggable-points",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Highcharts plugin that allows points to be dragged and dropped by mouse or touch.",
   "main": "draggable-points.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/highslide-software/draggable-points.git"
+    "url": "git+https://github.com/highcharts/draggable-points"
   },
   "keywords": [
     "draggable",
     "highcharts"
   ],
-  "author": "Torstein Hønsi (https://github.com/highslide-software)",
+  "author": "Torstein Hønsi (https://github.com/highcharts)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/highslide-software/draggable-points/issues"
+    "url": "https://github.com/highcharts/draggable-points/issues"
   },
-  "homepage": "https://github.com/highslide-software/draggable-points#readme",
+  "homepage": "https://github.com/highcharts/draggable-points#readme",
   "dependencies": {
     "highcharts": ">=3.0.0"
   }
