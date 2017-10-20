@@ -19,7 +19,8 @@
     var addEvent = Highcharts.addEvent,
         each = Highcharts.each,
         extend = Highcharts.extend,
-        pick = Highcharts.pick;
+        pick = Highcharts.pick,
+        columnProto = Highcharts.seriesTypes.column.prototype;
 
 
     /**
@@ -249,44 +250,54 @@
     });
 
     /**
-     * Extend the column chart tracker by visualizing the tracker object for small points
+     * Extend the column chart tracker by visualizing the tracker object for
+     * small points
      */
-    Highcharts.seriesTypes.column.prototype.useDragHandle = function () {
+    columnProto.useDragHandle = function () {
         var is3d = this.chart.is3d && this.chart.is3d();
         return !is3d;
     };
 
-    Highcharts.seriesTypes.column.prototype.dragHandlePath = function (shapeArgs, strokeW) {
-        var x1 = shapeArgs.x,
-            y = shapeArgs.y,
+    columnProto.dragHandlePath = function (shapeArgs, strokeW, isNegative) {
+        var h = 6,
+            h1 = h / 3,
+            h2 = h1 * 2,
+            x1 = shapeArgs.x,
+            y = (isNegative ? shapeArgs.height - h : 0) + shapeArgs.y,
             x2 = shapeArgs.x + shapeArgs.width;
 
         return [
-            'M', x1, y + 6 * strokeW,
+            'M', x1, y + h * strokeW,
             'L', x1, y,
             'L', x2, y,
-            'L', x2, y + 2 * strokeW,
-            'L', x1, y + 2 * strokeW,
-            'L', x2, y + 2 * strokeW,
-            'L', x2, y + 4 * strokeW,
-            'L', x1, y + 4 * strokeW,
-            'L', x2, y + 4 * strokeW,
-            'L', x2, y + 6 * strokeW
+            'L', x2, y + h1 * strokeW,
+            'L', x1, y + h1 * strokeW,
+            'L', x2, y + h1 * strokeW,
+            'L', x2, y + h2 * strokeW,
+            'L', x1, y + h2 * strokeW,
+            'L', x2, y + h2 * strokeW,
+            'L', x2, y + h * strokeW
         ];
     };
 
-    Highcharts.wrap(Highcharts.seriesTypes.column.prototype, 'drawTracker', function (proceed) {
+    Highcharts.wrap(columnProto, 'drawTracker', function (proceed) {
         var series = this,
             options = series.options,
             strokeW = series.borderWidth || 0;
 
         proceed.apply(series);
 
-        if (this.useDragHandle() && (options.draggableX || options.draggableY)) {
+        if (
+            this.useDragHandle() &&
+            (options.draggableX || options.draggableY)
+        ) {
 
             each(series.points, function (point) {
 
-                var path = (options.dragHandlePath || series.dragHandlePath)(point.shapeArgs, strokeW);
+                var path = (
+                        options.dragHandlePath ||
+                        series.dragHandlePath
+                    )(point.shapeArgs, strokeW, point.negative);
 
                 if (!point.handle) {
                     point.handle = series.chart.renderer.path(path)
@@ -294,7 +305,9 @@
                             fill: options.dragHandleFill || 'rgba(0,0,0,0.5)',
                             'class': 'highcharts-handle',
                             'stroke-width': strokeW,
-                            'stroke': options.dragHandleStroke || options.borderColor || 1
+                            'stroke': options.dragHandleStroke ||
+                                options.borderColor ||
+                                1
                         })
                         .css({
                             cursor: 'ns-resize'
