@@ -58,7 +58,26 @@
             dragPlotLow,
             changeLow,
             newHigh,
-            newLow;
+            newLow,
+            panKey,
+            zoomKey;
+
+        /**
+         * Check whether the panKey and zoomKey are set in chart.userOptions
+         **/
+        if (chart.userOptions.chart.panKey) {
+            panKey = chart.userOptions.chart.panKey + 'Key';
+        }
+        if (chart.userOptions.chart.zoomKey) {
+            zoomKey = chart.userOptions.chart.zoomKey + 'Key';
+        }
+
+        /**
+         * Check, whether the zoomKey or panKey is pressed
+         **/
+        function zoomOrPanKeyPressed(e) {
+            return (e[zoomKey] || e[panKey])
+        }
 
         /**
          * Get the new values based on the drag event
@@ -133,49 +152,54 @@
          * Handler for mousedown
          */
         function mouseDown(e) {
-            var options,
-                originalEvent = e.originalEvent || e,
-                hoverPoint,
-                series,
-                bottom;
 
-            if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
-                hoverPoint = originalEvent.target.point;
-            }
+            // Check whether the panKey or zoomKey isn't pressed
+            if (!zoomOrPanKeyPressed(e)) {
 
-            series = chart.hoverPoint && chart.hoverPoint.series;
-            if (!hoverPoint && chart.hoverPoint && (!series.useDragHandle || !series.useDragHandle())) {
-                hoverPoint = chart.hoverPoint;
-            }
+                var options,
+                    originalEvent = e.originalEvent || e,
+                    hoverPoint,
+                    series,
+                    bottom;
 
-            if (hoverPoint) {
-                options = hoverPoint.series.options;
-                dragStart = {};
-                if (options.draggableX && hoverPoint.draggableX !== false) {
-                    dragPoint = hoverPoint;
-                    dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
-                    dragPlotX = dragPoint.plotX;
-                    dragStart.x = dragPoint.x;
+                if ((originalEvent.target.getAttribute('class') || '').indexOf('highcharts-handle') !== -1) {
+                    hoverPoint = originalEvent.target.point;
                 }
 
-                if (options.draggableY && hoverPoint.draggableY !== false) {
-                    dragPoint = hoverPoint;
-                    // Added support for normal stacking (#78)
-                    bottom = pick(series.translatedThreshold, chart.plotHeight);
+                series = chart.hoverPoint && chart.hoverPoint.series;
+                if (!hoverPoint && chart.hoverPoint && (!series.useDragHandle || !series.useDragHandle())) {
+                    hoverPoint = chart.hoverPoint;
+                }
 
-                    dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
-                    dragPlotY = dragPoint.plotY + (bottom - (dragPoint.yBottom || bottom));
-                    dragStart.y = dragPoint.y;
-                    if (dragPoint.plotHigh) {
-                        dragPlotHigh = dragPoint.plotHigh;
-                        dragPlotLow = dragPoint.plotLow;
-                        changeLow = (Math.abs(dragPlotLow - (dragY - 60)) < Math.abs(dragPlotHigh - (dragY - 60))) ? true : false;
+                if (hoverPoint) {
+                    options = hoverPoint.series.options;
+                    dragStart = {};
+                    if (options.draggableX && hoverPoint.draggableX !== false) {
+                        dragPoint = hoverPoint;
+                        dragX = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageX : e.pageX;
+                        dragPlotX = dragPoint.plotX;
+                        dragStart.x = dragPoint.x;
                     }
-                }
 
-                // Disable zooming when dragging
-                if (dragPoint) {
-                    chart.mouseIsDown = false;
+                    if (options.draggableY && hoverPoint.draggableY !== false) {
+                        dragPoint = hoverPoint;
+                        // Added support for normal stacking (#78)
+                        bottom = pick(series.translatedThreshold, chart.plotHeight);
+
+                        dragY = originalEvent.changedTouches ? originalEvent.changedTouches[0].pageY : e.pageY;
+                        dragPlotY = dragPoint.plotY + (bottom - (dragPoint.yBottom || bottom));
+                        dragStart.y = dragPoint.y;
+                        if (dragPoint.plotHigh) {
+                            dragPlotHigh = dragPoint.plotHigh;
+                            dragPlotLow = dragPoint.plotLow;
+                            changeLow = (Math.abs(dragPlotLow - (dragY - 60)) < Math.abs(dragPlotHigh - (dragY - 60))) ? true : false;
+                        }
+                    }
+
+                    // Disable zooming when dragging
+                    if (dragPoint) {
+                        chart.mouseIsDown = false;
+                    }
                 }
             }
         }
@@ -185,7 +209,8 @@
          */
         function mouseMove(e) {
 
-            if (dragPoint) {
+            // Check whether the zoomKey or panKey isn't pressed
+            if (dragPoint && !zoomOrPanKeyPressed(e)) {
 
                 e.preventDefault();
 
