@@ -48,6 +48,7 @@
     Highcharts.Chart.prototype.callbacks.push(function (chart) {
 
         var container = chart.container,
+            chartOptions = chart.userOptions.chart || {},
             dragPoint,
             dragStart,
             dragX,
@@ -59,24 +60,15 @@
             changeLow,
             newHigh,
             newLow,
-            panKey,
-            zoomKey;
-
-        /**
-         * Check whether the panKey and zoomKey are set in chart.userOptions
-         **/
-        if (chart.userOptions.chart.panKey) {
-            panKey = chart.userOptions.chart.panKey + 'Key';
-        }
-        if (chart.userOptions.chart.zoomKey) {
-            zoomKey = chart.userOptions.chart.zoomKey + 'Key';
-        }
+            // Check whether the panKey and zoomKey are set in chart.userOptions
+            panKey = chartOptions.panKey && chartOptions.panKey + 'Key',
+            zoomKey = chartOptions.zoomKey && chartOptions.zoomKey + 'Key';
 
         /**
          * Check, whether the zoomKey or panKey is pressed
          **/
         function zoomOrPanKeyPressed(e) {
-            return (e[zoomKey] || e[panKey])
+            return (e[zoomKey] || e[panKey]);
         }
 
         /**

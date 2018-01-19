@@ -13,7 +13,7 @@ Online demos:
 
 | Option name | Type | Description |
 | ----------- | ---- | ----------- |
-| `chart.zoomKey` | String | Allows setting zoom key. Can be one of alt, ctrl, meta (the command key on Mac and Windows key on Windows) or shift, and should be set different than `chart.panKey`. It is useful when `series.stickyTracking` is enabled. |
+| `chart.zoomKey` | String | Allows setting zoom key. Can be one of `alt`, `ctrl`, `meta` (the command key on Mac and Windows key on Windows) or `shift`, and should be set different than `chart.panKey`. It is useful when [`series.stickyTracking`](https://api.highcharts.com/highcharts/plotOptions.series.stickyTracking) is enabled. |
 | `plotOptions.series.cursor`| String | Highcharts core option. We recommend setting a cursor that indicates to your users that the point can be dragged, for example `ns-resize` or `move`. |
 | `plotOptions.series.data.draggableX` | Boolean | If dragging is enabled on the series, set this to false to prevent dragging on a single point. |
 | `plotOptions.series.data.draggableY` | Boolean | If dragging is enabled on the series, set this to false to prevent dragging on a single point. |
