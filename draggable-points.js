@@ -2,7 +2,7 @@
  * Draggable points plugin for Highcharts JS
  * Author: Torstein Honsi
  * License: MIT License
- * Version: 2.0.7 (2017-10-20)
+ * Version: 2.0.8 (2018-01-25)
  */
 
 /*global document, Highcharts */
