@@ -8,7 +8,8 @@
   "license": "MIT",
   "keywords": [
     "draggable",
-    "highcharts"
+    "highcharts",
+    "highcharts-addon"
   ],
   "homepage": "https://github.com/sebastianzillessen/draggable-points",
   "ignore": [
