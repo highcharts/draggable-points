@@ -81,7 +81,7 @@
                 series = dragPoint.series,
                 draggableX = series.options.draggableX && dragPoint.draggableX !== false,
                 draggableY = series.options.draggableY && dragPoint.draggableY !== false,
-                dragSensitivity = pick(series.options.dragSensitiviy, 1),
+                dragSensitivity = pick(series.options.dragSensitivity, 1),
                 deltaX = draggableX ? dragX - pageX : 0,
                 deltaY = draggableY ? dragY - pageY : 0,
                 newPlotX = dragPlotX - deltaX,
