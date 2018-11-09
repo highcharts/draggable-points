@@ -1,0 +1,41 @@
+{
+  "name": "Draggable Points",
+  "version": "2.0.9",
+  "title": "Highcharts Draggable Points",
+  "demo": [
+    "[Combined series](https://jsfiddle.net/highcharts/AyUbx/)",
+    "[Bubble series](https://jsfiddle.net/highcharts/sk3m3o7d/)"
+  ],
+  "author": {
+    "name": "Torstein Hønsi",
+    "url": "https://github.com/highcharts"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/highcharts/draggable-points/blob/master/LICENSE"
+    }
+  ],
+  "description": "Highcharts plugin to allow the user to drag the points in the chart, and triggering events that lets the implementer listen to changes.",
+  "keywords": [
+   "draggable"
+  ],
+  "maintainers": [
+    {
+      "name": "Sebastian Bochan",
+      "email": "sebastian2@blacklabel.pl",
+      "url": "http://www.blacklabel.pl"
+    },{
+      "name": "Paweł Fus",
+      "email": "pawel@blacklabel.pl",
+      "url": "http://www.blacklabel.pl"
+    },{
+      "name": "Sebastian Zillessen",
+      "email": "sebastian@zillessen.info",
+      "url": "https://github.com/sebastianzillessen"
+    }
+  ],
+  "dependencies": {
+    "Highcharts": ">=3.0.0"
+  }
+}

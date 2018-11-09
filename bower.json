@@ -11,7 +11,7 @@
     "highcharts",
     "highcharts-addon"
   ],
-  "homepage": "https://github.com/sebastianzillessen/draggable-points",
+  "homepage": "https://github.com/highcharts/draggable-points",
   "ignore": [
     "**/.*",
     "node_modules",

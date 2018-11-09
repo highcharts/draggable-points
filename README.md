@@ -1,5 +1,11 @@
-Draggable Points for Highcharts
+Deprecated: Draggable Points for Highcharts
 ================
+
+This plugin is deprecated as of November 2018, and replaced by the featured
+[draggable-points](https://api.highcharts.com/highcharts/plotOptions.series.dragDrop)
+Highcharts module that includes the same functionality and more.
+
+_______________________________________________________________________________
 This plugin allows the user to drag the points in the chart, making them able to edit data directly in the chart.
 
 The contents of the plugin is located in the javascript file `draggable-points.js`. 
