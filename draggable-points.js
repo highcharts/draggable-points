@@ -308,7 +308,7 @@
         proceed.apply(series);
 
         if (
-            this.useDragHandle() &&
+            this.useDragHandle && this.useDragHandle() &&
             (options.draggableX || options.draggableY)
         ) {
 
